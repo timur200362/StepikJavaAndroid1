@@ -5,19 +5,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
-    
+
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        
+
         <LinearLayout
             android:id="@+id/linearLayoutNotes"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"/>
-        
+            android:orientation="vertical" />
+
     </ScrollView>
-    
+
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/buttonAddNote"
         android:layout_width="wrap_content"
@@ -25,5 +25,5 @@
         android:text="Button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/baseline_add_circle_outline_24"/>
+        app:srcCompat="@drawable/baseline_add_circle_outline_24" />
 </androidx.constraintlayout.widget.ConstraintLayout>

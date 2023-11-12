@@ -1,12 +1,13 @@
 package com.example.todolist;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -27,19 +28,27 @@ public class MainActivity extends AppCompatActivity {
         initViews();
 
         Random random = new Random();
-        for (int i = 0; i < 20; i++){
+        for (int i = 0; i < 20; i++) {
             Note note = new Note(i, "Note " + i, random.nextInt(3));
             notes.add(note);
         }
+        showNotes();
+        buttonAddNote.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=AddNoteActivity.newIntent(MainActivity.this);
+                startActivity(intent);
+            }
+        });
     }
 
-    private void initViews(){
+    private void initViews() {
         linearLayoutNotes = findViewById(R.id.linearLayoutNotes);
         buttonAddNote = findViewById(R.id.buttonAddNote);
     }
 
-    private void showNotes(){
-        for (Note note : notes){
+    private void showNotes() {
+        for (Note note : notes) {
             View view = getLayoutInflater().inflate(
                     R.layout.note_item,
                     linearLayoutNotes,
@@ -49,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             textViewNote.setText(note.getText());
 
             int colorResId;
-            switch (note.getPriority()){
+            switch (note.getPriority()) {
                 case 0:
                     colorResId = android.R.color.holo_green_light;
                     break;
