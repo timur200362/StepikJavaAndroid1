@@ -14,6 +14,11 @@ import java.util.ArrayList;
 public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHolder> {
 
     private ArrayList<Note> notes=new ArrayList<>();
+    private OnNoteClickListener onNoteClickListener;
+
+    public void setOnNoteClickListener(OnNoteClickListener onNoteClickListener) {
+        this.onNoteClickListener = onNoteClickListener;
+    }
 
     public void setNotes(ArrayList<Note> notes) {
         this.notes = notes;
@@ -48,6 +53,14 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         }
         int color = ContextCompat.getColor(viewHolder.itemView.getContext(), colorResId);//получаем цвет по его id
         viewHolder.textViewNote.setBackgroundColor(color);//устанавливаем цвет в зависимости от приоритета
+        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {//слушатель нажатий на записи
+            @Override
+            public void onClick(View view) {
+                if (onNoteClickListener!=null){
+                    onNoteClickListener.onNoteClick(note);//реагируем на клик
+                }
+            }
+        });
     }
     @Override
     public int getItemCount(){//кол-во элементов списка
@@ -61,5 +74,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
             super(itemView);
             textViewNote=itemView.findViewById(R.id.textViewNote);//вьюшка каждой записи списка
         }
+    }
+
+    interface OnNoteClickListener{
+        void onNoteClick(Note note);
     }
 }

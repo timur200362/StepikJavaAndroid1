@@ -30,7 +30,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         initViews();
         notesAdapter=new NotesAdapter();
-
+        notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
+            @Override
+            public void onNoteClick(Note note) {
+                database.remove(note.getId());//удаляем элемент списка по нажатию
+                showNotes();//обновляем список после удаления
+            }
+        });
         recyclerViewNotes.setAdapter(notesAdapter);//применяем адаптер для recyclerView
         //recyclerViewNotes.setLayoutManager(new LinearLayoutManager(this));//как будут располагаться элементы(Добавили через xml)
 
