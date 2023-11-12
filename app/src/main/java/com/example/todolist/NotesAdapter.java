@@ -54,7 +54,7 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     }
 
     class NotesViewHolder extends RecyclerView.ViewHolder{//ViewHolder хранит ссылки на все созданные элементы списка, чтобы их потом пересоздать
-        private  TextView textViewNote;
+        private TextView textViewNote;
 
         public NotesViewHolder(@NonNull View itemView){
             super(itemView);
