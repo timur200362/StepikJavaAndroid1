@@ -3,18 +3,13 @@ package com.example.todolist;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.ArrayList;
-import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,28 +17,50 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton buttonAddNote;
     private NotesAdapter notesAdapter;
 
-    private Database database=Database.getInstance();
+    private Database database = Database.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
-        notesAdapter=new NotesAdapter();
+        notesAdapter = new NotesAdapter();
         notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
             @Override
             public void onNoteClick(Note note) {
-                database.remove(note.getId());//удаляем элемент списка по нажатию
-                showNotes();//обновляем список после удаления
             }
         });
         recyclerViewNotes.setAdapter(notesAdapter);//применяем адаптер для recyclerView
         //recyclerViewNotes.setLayoutManager(new LinearLayoutManager(this));//как будут располагаться элементы(Добавили через xml)
 
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
+                new ItemTouchHelper.SimpleCallback(
+                        0,
+                        ItemTouchHelper.LEFT
+                ) {
+                    @Override
+//onMove когда хотим передвинуть элемент с одного места, на другое, не пригодиться, поэтому false
+                    public boolean onMove(
+                            @NonNull RecyclerView recyclerView,
+                            @NonNull RecyclerView.ViewHolder viewHolder,
+                            @NonNull RecyclerView.ViewHolder target) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {//метод для свайпа
+                        int position = viewHolder.getAdapterPosition();//id свайпнутого элемента
+                        Note note = notesAdapter.getNotes().get(position);//по id получаем сам объект
+                        database.remove(note.getId());//удаляем полученный объект
+                        showNotes();//обновляем список
+                    }
+                });//для удаления свайпом
+        itemTouchHelper.attachToRecyclerView(recyclerViewNotes);
+
         buttonAddNote.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=AddNoteActivity.newIntent(MainActivity.this);
+                Intent intent = AddNoteActivity.newIntent(MainActivity.this);
                 startActivity(intent);
             }
         });
