@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -17,8 +18,9 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private RecyclerView recyclerLayoutNotes;
+    private RecyclerView recyclerViewNotes;
     private FloatingActionButton buttonAddNote;
+    private NotesAdapter notesAdapter;
 
     private Database database=Database.getInstance();
 
@@ -27,6 +29,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         initViews();
+        notesAdapter=new NotesAdapter();
+
+        recyclerViewNotes.setAdapter(notesAdapter);//применяем адаптер для recyclerView
+        //recyclerViewNotes.setLayoutManager(new LinearLayoutManager(this));//как будут располагаться элементы(Добавили через xml)
 
         buttonAddNote.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,46 +46,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        showNotes();
+        showNotes();//показываем обновлённый список после его изменения, т.к вызывается Resume,а не Create
     }
 
     private void initViews() {
-        recyclerLayoutNotes = findViewById(R.id.recyclerViewNotes);
+        recyclerViewNotes = findViewById(R.id.recyclerViewNotes);
         buttonAddNote = findViewById(R.id.buttonAddNote);
     }
 
     private void showNotes() {
-        linearLayoutNotes.removeAllViews();
-        for (Note note : database.getNotes()) {
-            View view = getLayoutInflater().inflate(
-                    R.layout.note_item,//макет
-                    linearLayoutNotes,//контейнер
-                    false
-            );//преобразовывает из XML в View
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    database.remove(note.getId());
-                    showNotes();
-                }
-            });
-            TextView textViewNote = view.findViewById(R.id.textViewNote);//вьюшка каждой записи списка
-            textViewNote.setText(note.getText());
-
-            int colorResId;
-            switch (note.getPriority()) {
-                case 0:
-                    colorResId = android.R.color.holo_green_light;
-                    break;
-                case 1:
-                    colorResId = android.R.color.holo_orange_light;
-                    break;
-                default:
-                    colorResId = android.R.color.holo_red_light;
-            }
-            int color = ContextCompat.getColor(this, colorResId);//получаем цвет по его id
-            textViewNote.setBackgroundColor(color);
-            linearLayoutNotes.addView(view);
-        }
+        notesAdapter.setNotes(database.getNotes());//передаем список всех записей
     }
 }
