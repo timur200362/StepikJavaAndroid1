@@ -8,6 +8,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -16,7 +17,7 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private LinearLayout linearLayoutNotes;
+    private RecyclerView recyclerLayoutNotes;
     private FloatingActionButton buttonAddNote;
 
     private Database database=Database.getInstance();
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initViews() {
-        linearLayoutNotes = findViewById(R.id.linearLayoutNotes);
+        recyclerLayoutNotes = findViewById(R.id.recyclerViewNotes);
         buttonAddNote = findViewById(R.id.buttonAddNote);
     }
 
@@ -51,10 +52,17 @@ public class MainActivity extends AppCompatActivity {
         linearLayoutNotes.removeAllViews();
         for (Note note : database.getNotes()) {
             View view = getLayoutInflater().inflate(
-                    R.layout.note_item,
-                    linearLayoutNotes,
+                    R.layout.note_item,//макет
+                    linearLayoutNotes,//контейнер
                     false
             );//преобразовывает из XML в View
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    database.remove(note.getId());
+                    showNotes();
+                }
+            });
             TextView textViewNote = view.findViewById(R.id.textViewNote);//вьюшка каждой записи списка
             textViewNote.setText(note.getText());
 
