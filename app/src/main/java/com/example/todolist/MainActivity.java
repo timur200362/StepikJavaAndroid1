@@ -8,6 +8,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,7 +22,6 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton buttonAddNote;
     private NotesAdapter notesAdapter;
     private NoteDatabase noteDatabase;
-    private Handler handler = new Handler(Looper.getMainLooper());//Handler содержит ссылку на главный поток
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +39,13 @@ public class MainActivity extends AppCompatActivity {
         });
         recyclerViewNotes.setAdapter(notesAdapter);//применяем адаптер для recyclerView
         //recyclerViewNotes.setLayoutManager(new LinearLayoutManager(this));//как будут располагаться элементы(Добавили через xml)
+
+        noteDatabase.notesDao().getNotes().observe(this, new Observer<List<Note>>() {
+            @Override
+            public void onChanged(List<Note> notes) {//изменения приходят в onChanged
+                notesAdapter.setNotes(notes);
+            }
+        });//подписываемся на изменения в бд
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
                 new ItemTouchHelper.SimpleCallback(
@@ -63,12 +70,6 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 noteDatabase.notesDao().remove(note.getId());//удаляем полученный объект(в фон потоке)
-                                handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        showNotes();//обновляем список(в главном потоке)
-                                    }
-                                });
                             }
                         });
                         thread.start();
@@ -88,27 +89,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        showNotes();//показываем обновлённый список после его изменения, т.к вызывается Resume,а не Create
     }
 
     private void initViews() {
         recyclerViewNotes = findViewById(R.id.recyclerViewNotes);
         buttonAddNote = findViewById(R.id.buttonAddNote);
-    }
-
-    private void showNotes() {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<Note> notes=noteDatabase.notesDao().getNotes();
-                handler.post(new Runnable() {//handler'у передаем сообщение
-                    @Override
-                    public void run() {
-                        notesAdapter.setNotes(noteDatabase.notesDao().getNotes());//передаем список всех записей
-                    }
-                });
-            }
-        });
-        thread.start();
     }
 }
