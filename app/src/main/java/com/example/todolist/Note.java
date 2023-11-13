@@ -1,6 +1,7 @@
 package com.example.todolist;
 
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 @Entity(tableName = "notes")
@@ -12,6 +13,11 @@ public class Note {
 
     public Note(int id, String text, int priority){
         this.id=id;
+        this.text=text;
+        this.priority=priority;
+    }
+    @Ignore//мы используем, а Room не видит
+    public Note(String text, int priority){
         this.text=text;
         this.priority=priority;
     }
