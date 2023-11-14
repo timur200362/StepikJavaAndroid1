@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
         });
         initViews();
 
+
         notesAdapter = new NotesAdapter();
         notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
             @Override
