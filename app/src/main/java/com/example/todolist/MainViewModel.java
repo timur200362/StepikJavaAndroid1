@@ -12,8 +12,6 @@ import java.util.List;
 public class MainViewModel extends AndroidViewModel {
 
     private NoteDatabase noteDatabase;
-    private int count=0;
-    private MutableLiveData<Integer> countLD=new MutableLiveData<>();//можем устанавливать значения
 
     public MainViewModel(@NonNull Application application){
         super(application);
@@ -23,13 +21,7 @@ public class MainViewModel extends AndroidViewModel {
     public LiveData<List<Note>> getNotes(){
         return noteDatabase.notesDao().getNotes();
     }
-    public void sumCount(){
-        count++;
-        countLD.setValue(count);
-    }
-    public LiveData<Integer> getCount(){
-        return countLD;//возвращаем объект типа LiveData, чтобы извне нельзя было устанавливать свои значения
-    }
+
 
     public void remove(Note note){
         Thread thread=new Thread(new Runnable() {
