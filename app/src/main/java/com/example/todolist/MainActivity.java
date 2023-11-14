@@ -5,10 +5,12 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,26 +23,37 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView recyclerViewNotes;
     private FloatingActionButton buttonAddNote;
     private NotesAdapter notesAdapter;
-    private NoteDatabase noteDatabase;
+
+    private MainViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        noteDatabase=NoteDatabase.getInstance(getApplication());//получаем экземпляр класса NoteDatabase
+        viewModel=new ViewModelProvider(this).get(MainViewModel.class);
+        viewModel.getCount().observe(this, new Observer<Integer>() {
+            @Override
+            public void onChanged(Integer count) {
+                Toast.makeText(
+                        MainActivity.this,
+                        String.valueOf(count),
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
+        });
         initViews();
 
         notesAdapter = new NotesAdapter();
         notesAdapter.setOnNoteClickListener(new NotesAdapter.OnNoteClickListener() {
             @Override
             public void onNoteClick(Note note) {
+                viewModel.sumCount();
             }
         });
         recyclerViewNotes.setAdapter(notesAdapter);//применяем адаптер для recyclerView
         //recyclerViewNotes.setLayoutManager(new LinearLayoutManager(this));//как будут располагаться элементы(Добавили через xml)
 
-        noteDatabase.notesDao().getNotes().observe(this, new Observer<List<Note>>() {
+        viewModel.getNotes().observe(this, new Observer<List<Note>>() {
             @Override
             public void onChanged(List<Note> notes) {//изменения приходят в onChanged
                 notesAdapter.setNotes(notes);
@@ -66,13 +79,7 @@ public class MainActivity extends AppCompatActivity {
                         int position = viewHolder.getAdapterPosition();//id свайпнутого элемента
                         Note note = notesAdapter.getNotes().get(position);//по id получаем сам объект
 
-                        Thread thread = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                noteDatabase.notesDao().remove(note.getId());//удаляем полученный объект(в фон потоке)
-                            }
-                        });
-                        thread.start();
+                        viewModel.remove(note);//удаляем заметку, обращаясь к БД через viewModel
                     }
                 });//для удаления свайпом
         itemTouchHelper.attachToRecyclerView(recyclerViewNotes);
