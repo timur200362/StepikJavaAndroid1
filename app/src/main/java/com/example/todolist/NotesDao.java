@@ -14,11 +14,11 @@ import io.reactivex.rxjava3.core.Single;
 public interface NotesDao {
 
     @Query("SELECT * FROM notes")//получить записи
-    List<Note> getNotes();
+    LiveData<List<Note>> getNotes();
 
     @Insert
-    void add(Note note);//ничего не возвращает, можно completable(rxJava)
+    Completable add(Note note);//ничего не возвращает, можно completable(rxJava)
 
     @Query("DELETE FROM notes WHERE id=:id")//:id-параметр метода remove
-    void remove(int id);
+    Completable remove(int id);
 }
