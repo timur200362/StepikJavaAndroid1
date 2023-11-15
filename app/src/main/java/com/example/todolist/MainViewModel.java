@@ -9,8 +9,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import java.util.List;
+import java.util.concurrent.Callable;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
+import io.reactivex.rxjava3.core.Single;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.functions.Action;
@@ -33,7 +36,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void refreshList(){
-        Disposable disposable=noteDatabase.notesDao().getNotes()
+        Disposable disposable=getNotesRx()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Consumer<List<Note>>() {//при работе с Single
@@ -46,7 +49,7 @@ public class MainViewModel extends AndroidViewModel {
     }
 
     public void remove(Note note){
-        Disposable disposable=noteDatabase.notesDao().remove(note.getId())
+        Disposable disposable=removeRx(note)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Action() {
@@ -57,6 +60,23 @@ public class MainViewModel extends AndroidViewModel {
                     }
                 });
         compositeDisposable.add(disposable);
+    }
+    private Completable removeRx(Note note){//реализация Completable
+        return Completable.fromAction(new Action() {
+            @Override
+            public void run() throws Throwable {
+                noteDatabase.notesDao().remove(note.getId());
+            }
+        });
+    }
+
+    private Single<List<Note>> getNotesRx(){//реализация Single, если что-то не поддерживает RxJava
+        return Single.fromCallable(new Callable<List<Note>>() {
+            @Override
+            public List<Note> call() throws Exception {
+                return noteDatabase.notesDao().getNotes();
+            }
+        });
     }
 
     @Override

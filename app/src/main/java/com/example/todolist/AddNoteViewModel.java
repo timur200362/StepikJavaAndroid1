@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Completable;
 import io.reactivex.rxjava3.core.Scheduler;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
@@ -27,7 +28,7 @@ public class AddNoteViewModel extends AndroidViewModel {
         return shouldCloseScreen;
     }
     public void saveNote(Note note){
-        Disposable disposable = notesDao.add(note)
+        Disposable disposable = addRx(note)
                 .subscribeOn(Schedulers.io())//переводим(верхний код) добавление в фоновый поток. io-работа с данными
                 .observeOn(AndroidSchedulers.mainThread())//переводим(нижний код) в главный поток.
                 .subscribe(new Action() {
@@ -37,6 +38,15 @@ public class AddNoteViewModel extends AndroidViewModel {
             }
         });
         compositeDisposable.add(disposable);//добавляем объект disposable для добавления записи в коллекцию
+    }
+
+    private Completable addRx(Note note){
+        return Completable.fromAction(new Action() {
+            @Override
+            public void run() throws Throwable {
+                notesDao.add(note);
+            }
+        });
     }
 
     @Override
